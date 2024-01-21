@@ -4,7 +4,6 @@ use crate::downloaders::{
 use clap::Parser;
 use downloaders::xmw::XMWDownloader;
 
-mod decoder;
 mod downloaders;
 mod output;
 mod utils;

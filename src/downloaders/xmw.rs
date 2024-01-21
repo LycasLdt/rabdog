@@ -1,12 +1,12 @@
 use anyhow::Result;
 use serde::Deserialize;
 
-use crate::{
-    decoder::{decode_cbc_aes, decode_hex},
-    utils::get_next_data,
+use crate::utils::{
+    decode::{decode_cbc_aes, decode_hex},
+    get_next_data,
 };
 
-use super::{Downloader, DownloaderContext};
+use super::{Downloader, DownloaderAssetServer, DownloaderContext, DownloaderDescriptor};
 
 const XMW_PROJECT_URL: &str = "https://world.xiaomawang.com/community/main/compose/";
 const XMW_SB3_URL: &str =
@@ -46,11 +46,15 @@ pub struct XMWDownloader;
 
 #[async_trait::async_trait]
 impl Downloader for XMWDownloader {
-    fn display_name(&self) -> &'static str {
-        "小码王"
-    }
-    fn assets_server(&self) -> &'static str {
-        "https://community-wscdn.xiaomawang.com/picture/"
+    fn descriptor(&self) -> DownloaderDescriptor {
+        DownloaderDescriptor {
+            display_name: "小码王",
+            referer: "https://world.xiaomawang.com/",
+            asset_server: DownloaderAssetServer::split(
+                "https://community-wscdn.xiaomawang.com/picture/",
+                "https://community-wscdn.xiaomawang.com/audio/",
+            ),
+        }
     }
 
     async fn get(&self, context: &mut DownloaderContext) -> Result<()> {

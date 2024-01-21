@@ -1,9 +1,8 @@
-use crate::{
-    decoder::{decode_base64, decode_cbc_aes, Base64Purpose},
-    utils::get_sb3_project,
+use crate::utils::{
+    decode::{decode_base64, decode_cbc_aes, Base64Purpose}, sb3::Sb3Reader
 };
 
-use super::{Downloader, DownloaderContext};
+use super::{Downloader, DownloaderAssetServer, DownloaderContext, DownloaderDescriptor};
 use anyhow::{anyhow, Result};
 use bytes::{BufMut, BytesMut};
 
@@ -44,11 +43,12 @@ pub struct CCWDownloader;
 
 #[async_trait::async_trait]
 impl Downloader for CCWDownloader {
-    fn display_name(&self) -> &'static str {
-        "共创世界"
-    }
-    fn assets_server(&self) -> &'static str {
-        "https://m.ccw.site/user_projects_assets/"
+    fn descriptor(&self) -> DownloaderDescriptor {
+        DownloaderDescriptor {
+            display_name: "共创世界",
+            referer: "https://www.ccw.site/",
+            asset_server: DownloaderAssetServer::same("https://m.ccw.site/user_projects_assets/")
+        }
     }
 
     async fn get(&self, context: &mut DownloaderContext) -> Result<()> {
@@ -69,8 +69,9 @@ impl Downloader for CCWDownloader {
             p if p == &V2_PREFIX => decode_v2(context.clone())?,
             _ => decode_v3(context.clone())?,
         };
-        let mut project = get_sb3_project(buf)?;
-        if !project.starts_with(&[123]) {
+
+        let mut project = Sb3Reader::from_zip(buf)?.0;
+        if !project.starts_with(b"{") {
             project = decode_zip_content(project)?;
         }
 
@@ -136,7 +137,7 @@ fn decode_v3(context: DownloaderContext) -> Result<Vec<u8>> {
         .and_then(|f| f.split('.').next())
         .ok_or(anyhow!("incorrect project url"))?;
 
-    let input = decode_base64(context.buffer.clone().unwrap(), Base64Purpose::Standard)?;
+    let input = decode_base64(context.buffer(), Base64Purpose::Standard)?;
     let key = decode_base64(
         [BASE64_PREFIX, asset_id].concat(),
         Base64Purpose::StandardNoPad,

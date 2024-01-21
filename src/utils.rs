@@ -1,10 +1,11 @@
-use std::{
-    borrow::Cow,
-    io::{Cursor, Read as _},
-};
+use std::borrow::Cow;
 
 use anyhow::{anyhow, Result};
 use quick_xml::{events::Event, Reader};
+
+pub mod decode;
+pub mod output;
+pub mod sb3;
 
 pub fn get_next_data(text: &str) -> Result<String> {
     let mut reader = Reader::from_str(text);
@@ -34,13 +35,4 @@ pub fn get_next_data(text: &str) -> Result<String> {
     }
 
     Err(anyhow!("__NEXT_DATA__ is missing"))
-}
-
-pub fn get_sb3_project<I: AsRef<[u8]>>(input: I) -> Result<Vec<u8>> {
-    let cursor = Cursor::new(input.as_ref());
-    let mut archive = zip::ZipArchive::new(cursor)?;
-    let mut buf = Vec::new();
-
-    archive.by_name("project.json")?.read_to_end(&mut buf)?;
-    Ok(buf)
 }

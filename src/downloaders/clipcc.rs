@@ -1,5 +1,5 @@
-use super::{Downloader, DownloaderContext};
-use crate::{decoder::decode_cbc_aes, utils::get_next_data};
+use super::{Downloader, DownloaderAssetServer, DownloaderContext, DownloaderDescriptor};
+use crate::utils::{decode::decode_cbc_aes, get_next_data};
 use anyhow::Result;
 
 const CLIPCC_SB3_URL: &str = "https://api.codingclip.com/v1/project/publicJson";
@@ -43,11 +43,12 @@ pub struct ClipccDownloader;
 
 #[async_trait::async_trait]
 impl Downloader for ClipccDownloader {
-    fn display_name(&self) -> &'static str {
-        "Clipcc"
-    }
-    fn assets_server(&self) -> &'static str {
-        "https://api.codingclip.com/v1/project/asset/"
+    fn descriptor(&self) -> DownloaderDescriptor {
+        DownloaderDescriptor {
+            display_name: "Clipcc",
+            referer: "https://codingclip.com/",
+            asset_server: DownloaderAssetServer::same("https://api.codingclip.com/v1/project/asset/")
+        }
     }
 
     async fn get(&self, context: &mut DownloaderContext) -> Result<()> {
