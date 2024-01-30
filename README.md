@@ -20,7 +20,9 @@
 * :white_check_mark: [**小码王**][xmw]
   全部支持
 * :white_check_mark: [**Scratch 中社**][scratch-cn]
-  从`v0.1.2`开始支持
+  从`v0.2.1`开始支持
+* :white_check_mark: [**40code**][40code]
+  从`v0.2.1`开始支持
 
 ### :white_check_mark:使用
 
@@ -47,3 +49,4 @@ MIT
 [40code]: https://40code.com
 [xmw]: https://world.xiaomawang.com/
 [scratch-cn]: https://www.scratch-cn.cn/
+[40code]: https://www.40code.com/
