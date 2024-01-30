@@ -4,7 +4,7 @@ pub mod fortycode;
 pub mod scratch_cn;
 pub mod xmw;
 
-use std::{path::PathBuf, sync::Arc};
+use std::{io::Write, path::PathBuf, sync::Arc};
 
 use anyhow::Result;
 use bytes::Bytes;
@@ -202,12 +202,20 @@ impl<'a> Handler<'a> {
     }
     async fn pack_sb3(&self, mut path: PathBuf) -> Result<()> {
         let DownloadDescriptor { asset_server, .. } = self.downloader.descriptor();
+        let (config, _, _) = CONTEXT.get().unwrap();
+
         let context = &self.context;
 
         path.push(context.title.clone().unwrap());
-        path.set_extension("sb3");
+        path.set_extension(if config.no_assets { "json" } else { "sb3" });
 
-        let file = std::fs::File::create(path)?;
+        let mut file = std::fs::File::create(path)?;
+
+        if config.no_assets {
+            file.write_all(&context.buffer())?;
+            return Ok(());
+        }
+
         let writer = Arc::new(Mutex::new(Sb3Writer::new(file)));
         writer.lock().await.set_project_json(context.buffer())?;
 
@@ -219,7 +227,10 @@ impl<'a> Handler<'a> {
                 let arc = Arc::clone(&writer);
                 let mut writer = arc.lock().await;
 
-                tx.send((self.idx.unwrap(), Notification::DownloadedAsset(asset.md5ext.clone())))?;
+                tx.send((
+                    self.idx.unwrap(),
+                    Notification::DownloadedAsset(asset.md5ext.clone()),
+                ))?;
                 asset_server
                     .download_asset(&mut writer, asset, context.clone())
                     .await

@@ -14,26 +14,43 @@
 
 ### :rocket:支持
 * :white_check_mark: [**CCW**][ccw]
+
   全部支持
 * :white_check_mark: [**Clipcc**][clipcc]
+
   全部支持
-* :white_check_mark: [**小码王**][xmw]
-  全部支持
+* :bomb: [**小码王**][xmw]
+
+  **部分**支持
+
+  > [!CAUTION]
+  > 经测试 约 **50%** 作品 **无法使用**
 * :white_check_mark: [**Scratch 中社**][scratch-cn]
+
   从`v0.2.1`开始支持
-* :white_check_mark: [**40code**][40code]
-  从`v0.2.1`开始支持
+* :bomb: [**40code**][40code]
+
+  从`v0.2.1`开始**部分**支持
+  
+  > [!CAUTION]
+  >  经测试 约 **95%** 的作品 **无法使用**
 
 ### :white_check_mark:使用
 
+`rabdog --help` **获取帮助**:
+
 ```bash
-rabdog [SOURCE] <OPTIONS>
+rabdog [OPTIONS] <SOURCES>...
+
+参数:
+  <SOURCES>...  社区作品链接
+
+选项:
+  -p, --path <PATH>  .sb3 文件存储路径 [默认: .]
+  -n, --no-assets    是否只下载 .sb3 文件中的 project.json
+  -h, --help         获取帮助
+  -V, --version      获取 rabdog 版本号
 ```
-__SOURCE__: **社区作品**链接
-
-__OPTIONS__:
-
-`可选` `-p, --path <PATH>`: `.sb3`文件存储路径
 
 ### :heart_on_fire:贡献
 
