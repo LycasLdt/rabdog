@@ -26,14 +26,7 @@
   > [!CAUTION]
   > 经测试 约 **50%** 作品 **无法使用**
 * :white_check_mark: [**Scratch 中社**][scratch-cn]
-
-  从`v0.2.1`开始支持
-* :bomb: [**40code**][40code]
-
-  从`v0.2.1`开始**部分**支持
-  
-  > [!CAUTION]
-  >  经测试 约 **95%** 的作品 **无法使用**
+  从`v0.1.2`开始支持
 
 ### :white_check_mark:使用
 
