@@ -1,4 +1,4 @@
-use super::{Downloader, DownloaderAssetServer, DownloaderContext, DownloaderDescriptor};
+use super::{Download, DownloadAssetServer, DownloadContext, DownloadDescriptor};
 use crate::utils::{decode::decode_cbc_aes, get_next_data};
 use anyhow::Result;
 
@@ -39,35 +39,37 @@ struct ClipccProject {
 }
 
 #[derive(Default)]
-pub struct ClipccDownloader;
+pub struct ClipccDownload;
 
 #[async_trait::async_trait]
-impl Downloader for ClipccDownloader {
-    fn descriptor(&self) -> DownloaderDescriptor {
-        DownloaderDescriptor {
+impl Download for ClipccDownload {
+    fn descriptor(&self) -> DownloadDescriptor {
+        DownloadDescriptor {
             display_name: "Clipcc",
             referer: "https://codingclip.com/",
-            asset_server: DownloaderAssetServer::same("https://api.codingclip.com/v1/project/asset/")
+            asset_server: DownloadAssetServer::same(
+                "https://api.codingclip.com/v1/project/asset/",
+            ),
         }
     }
 
-    async fn get(&self, context: &mut DownloaderContext) -> Result<()> {
+    async fn get(&self, context: &mut DownloadContext) -> Result<()> {
         let url = [CLIPCC_PROJECT_URL, &context.id].concat();
 
-        let res = context.client.get(url).send().await?.text().await?;
+        let res = context.get(url).send().await?.text().await?;
         let data = get_next_data(&res)?;
         let json = serde_json::from_str::<ClipccData>(&data)?.props.page_props;
 
         let project_url =
-            reqwest::Url::parse_with_params(CLIPCC_SB3_URL, &[("id", context.id.clone())])?;
+            crate::utils::Url::parse_with_params(CLIPCC_SB3_URL, &[("id", context.id.clone())])?;
 
         context.set_info(project_url, json.project.name, vec![json.project.user_name]);
         Ok(())
     }
-    fn decode(&self, context: &mut DownloaderContext) -> Result<()> {
+    fn decode(&self, context: &mut DownloadContext) -> Result<()> {
         let buf = context.buffer();
         if buf.starts_with(&CLIPCC_SOURCE_PREFIX) {
-            context.set_buffer(decode_cbc_aes(&buf, &CLIPCC_AES_KEY, &CLIPCC_AES_IV)?.into());
+            context.set_buffer(decode_cbc_aes(&buf, CLIPCC_AES_KEY, CLIPCC_AES_IV)?.into());
         }
         Ok(())
     }

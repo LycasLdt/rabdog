@@ -6,7 +6,7 @@ use crate::utils::{
     get_next_data,
 };
 
-use super::{Downloader, DownloaderAssetServer, DownloaderContext, DownloaderDescriptor};
+use super::{Download, DownloadAssetServer, DownloadContext, DownloadDescriptor};
 
 const XMW_PROJECT_URL: &str = "https://world.xiaomawang.com/community/main/compose/";
 const XMW_SB3_URL: &str =
@@ -42,31 +42,31 @@ struct XMWProjectEncodedSb3 {
 }
 
 #[derive(Default)]
-pub struct XMWDownloader;
+pub struct XMWDownload;
 
 #[async_trait::async_trait]
-impl Downloader for XMWDownloader {
-    fn descriptor(&self) -> DownloaderDescriptor {
-        DownloaderDescriptor {
+impl Download for XMWDownload {
+    fn descriptor(&self) -> DownloadDescriptor {
+        DownloadDescriptor {
             display_name: "小码王",
             referer: "https://world.xiaomawang.com/",
-            asset_server: DownloaderAssetServer::split(
+            asset_server: DownloadAssetServer::split(
                 "https://community-wscdn.xiaomawang.com/picture/",
                 "https://community-wscdn.xiaomawang.com/audio/",
             ),
         }
     }
 
-    async fn get(&self, context: &mut DownloaderContext) -> Result<()> {
+    async fn get(&self, context: &mut DownloadContext) -> Result<()> {
         let url = [XMW_PROJECT_URL, &context.id].concat();
-        let html = context.client.get(&url).send().await?.text().await?;
+        let html = context.get(&url).send().await?.text().await?;
 
         let data = get_next_data(&html)?;
         let json = serde_json::from_str::<XMWData>(&data)?
             .props
             .initial_state
             .detail;
-        let project_url = reqwest::Url::parse_with_params(
+        let project_url = crate::utils::Url::parse_with_params(
             XMW_SB3_URL,
             &[("compositionEncryptId", context.id.clone())],
         )?;
@@ -74,7 +74,7 @@ impl Downloader for XMWDownloader {
 
         Ok(())
     }
-    fn decode(&self, context: &mut DownloaderContext) -> Result<()> {
+    fn decode(&self, context: &mut DownloadContext) -> Result<()> {
         let content = context
             .buffer()
             .into_iter()

@@ -1,4 +1,4 @@
-use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut, KeyIvInit};
+use aes::cipher::{block_padding::Pkcs7, BlockDecryptMut};
 use anyhow::{anyhow, Result};
 use base64::{
     alphabet,
@@ -26,6 +26,12 @@ pub fn decode_base64<I: AsRef<[u8]>>(input: I, purpose: Base64Purpose) -> Result
     Ok(purpose.decode(input.as_ref())?)
 }
 
+macro_rules! detect_aes_size {
+    ($size: ty, [$key: expr, $iv: expr]) => {{
+        use aes::cipher::KeyIvInit;
+        cbc::Decryptor::<$size>::new_from_slices($key, $iv)
+    }};
+}
 #[inline]
 pub fn decode_cbc_aes<K: AsRef<[u8]>, I: AsRef<[u8]>>(
     input: &[u8],
@@ -35,10 +41,8 @@ pub fn decode_cbc_aes<K: AsRef<[u8]>, I: AsRef<[u8]>>(
     let (key, iv) = (key.as_ref(), iv.as_ref());
 
     match key.len() {
-        16 => Ok(cbc::Decryptor::<aes::Aes128>::new_from_slices(key, iv)?
-            .decrypt_padded_vec_mut::<Pkcs7>(input)?),
-        32 => Ok(cbc::Decryptor::<aes::Aes256>::new_from_slices(key, iv)?
-            .decrypt_padded_vec_mut::<Pkcs7>(input)?),
+        16 => Ok(detect_aes_size!(aes::Aes128, [key, iv])?.decrypt_padded_vec_mut::<Pkcs7>(input)?),
+        32 => Ok(detect_aes_size!(aes::Aes256, [key, iv])?.decrypt_padded_vec_mut::<Pkcs7>(input)?),
         _ => Err(anyhow!("incorrect length of the aes key")),
     }
 }

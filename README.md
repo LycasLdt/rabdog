@@ -19,6 +19,8 @@
   全部支持
 * :white_check_mark: [**小码王**][xmw]
   全部支持
+* :white_check_mark: [**Scratch 中社**][scratch-cn]
+  从`v0.1.2`开始支持
 
 ### :white_check_mark:使用
 
@@ -29,7 +31,7 @@ __SOURCE__: **社区作品**链接
 
 __OPTIONS__:
 
-`可选` `-p, --path <PATH>`: `sb3`文件存储路径
+`可选` `-p, --path <PATH>`: `.sb3`文件存储路径
 
 ### :heart_on_fire:贡献
 
@@ -44,3 +46,4 @@ MIT
 [clipcc]: https://codingclip.com
 [40code]: https://40code.com
 [xmw]: https://world.xiaomawang.com/
+[scratch-cn]: https://www.scratch-cn.cn/

@@ -2,9 +2,10 @@ use crate::utils::{
     decode::{decode_base64, decode_cbc_aes, Base64Purpose}, sb3::Sb3Reader
 };
 
-use super::{Downloader, DownloaderAssetServer, DownloaderContext, DownloaderDescriptor};
+use super::{Download, DownloadAssetServer, DownloadContext, DownloadDescriptor};
 use anyhow::{anyhow, Result};
 use bytes::{BufMut, BytesMut};
+use reqwest::Method;
 
 const CCW_DETAIL_URL: &str = "https://community-web.ccw.site/creation/detail";
 const CCW_ACCESS_KEY: &str = "";
@@ -39,20 +40,20 @@ struct CCWRelease {
 }
 
 #[derive(Default)]
-pub struct CCWDownloader;
+pub struct CCWDownload;
 
 #[async_trait::async_trait]
-impl Downloader for CCWDownloader {
-    fn descriptor(&self) -> DownloaderDescriptor {
-        DownloaderDescriptor {
+impl Download for CCWDownload {
+    fn descriptor(&self) -> DownloadDescriptor {
+        DownloadDescriptor {
             display_name: "共创世界",
             referer: "https://www.ccw.site/",
-            asset_server: DownloaderAssetServer::same("https://m.ccw.site/user_projects_assets/")
+            asset_server: DownloadAssetServer::same("https://m.ccw.site/user_projects_assets/")
         }
     }
 
-    async fn get(&self, context: &mut DownloaderContext) -> Result<()> {
-        let req = context.client.post(CCW_DETAIL_URL).json(&CCWDetailPayload {
+    async fn get(&self, context: &mut DownloadContext) -> Result<()> {
+        let req = context.request(Method::POST, CCW_DETAIL_URL).json(&CCWDetailPayload {
             oid: &context.id,
             access_key: CCW_ACCESS_KEY,
         });
@@ -62,7 +63,7 @@ impl Downloader for CCWDownloader {
         Ok(())
     }
 
-    fn decode(&self, context: &mut DownloaderContext) -> Result<()> {
+    fn decode(&self, context: &mut DownloadContext) -> Result<()> {
         let prefix = context.buffer().slice(..8).to_vec();
         let buf = match &prefix {
             p if p == &ZIP_ARCHIEVE_PREFIX => context.buffer().to_vec(),
@@ -120,7 +121,7 @@ fn decode_zip_content(content: Vec<u8>) -> Result<Vec<u8>> {
     Ok(res.into())
 }
 
-fn decode_v2(context: DownloaderContext) -> Result<Vec<u8>> {
+fn decode_v2(context: DownloadContext) -> Result<Vec<u8>> {
     let buffer = context.buffer();
     let mut buf = BytesMut::with_capacity(buffer.len());
     buf.put_slice(&ZIP_ARCHIEVE_PREFIX);
@@ -129,7 +130,7 @@ fn decode_v2(context: DownloaderContext) -> Result<Vec<u8>> {
     Ok(buf.into())
 }
 
-fn decode_v3(context: DownloaderContext) -> Result<Vec<u8>> {
+fn decode_v3(context: DownloadContext) -> Result<Vec<u8>> {
     let url = context.url.clone().unwrap();
     let asset_id = url
         .split('/')
