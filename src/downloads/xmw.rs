@@ -75,11 +75,7 @@ impl Download for XMWDownload {
         Ok(())
     }
     fn decode(&self, context: &mut DownloadContext) -> Result<()> {
-        let content = context
-            .buffer()
-            .into_iter()
-            .filter(|s| !s.is_ascii_whitespace())
-            .collect::<Vec<u8>>();
+        let content = context.buffer();
 
         let hex = serde_json::from_slice::<XMWProjectEncodedSb3>(&content)?.data;
         let input = decode_hex(&hex)?;

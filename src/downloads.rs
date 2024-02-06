@@ -168,28 +168,37 @@ impl<'a> Handler<'a> {
         }
     }
 
-    pub async fn download(&mut self, idx: usize) -> Result<()> {
-        let (config, _, tx) = CONTEXT.get().unwrap();
+    pub async fn download(&mut self, idx: usize) {
+        let (_, _, tx) = CONTEXT.get().unwrap();
         self.idx = Some(idx);
 
-        tx.send((
+        if let Err(err) = self.download_inner().await {
+            tx.send_single(idx, Notification::Error(err)).unwrap();
+        }
+    }
+
+    async fn download_inner(&mut self) -> Result<()> {
+        let (config, _, tx) = CONTEXT.get().unwrap();
+        let idx = self.idx.unwrap();
+
+        tx.send_single(
             idx,
             Notification::SelectedDownload {
                 name: self.downloader.descriptor().display_name,
                 id: self.context.id.clone(),
             },
-        ))?;
+        )?;
 
         self.downloader.get(&mut self.context).await.and_then(|_| {
             let title = self.context.clone().title.unwrap();
-            Ok(tx.send((idx, Notification::FetchedProject(title)))?)
+            Ok(tx.send_single(idx, Notification::FetchedProject(title))?)
         })?;
         self.get_buffer().await?;
         self.downloader
             .decode(&mut self.context)
-            .and_then(|_| Ok(tx.send((idx, Notification::DecodedProject))?))?;
+            .and_then(|_| Ok(tx.send_single(idx, Notification::DecodedProject)?))?;
         self.pack_sb3(config.path.clone()).await?;
-        tx.send((idx, Notification::Finished))?;
+        tx.send_single(idx, Notification::Finished)?;
 
         Ok(())
     }
@@ -227,10 +236,10 @@ impl<'a> Handler<'a> {
                 let arc = Arc::clone(&writer);
                 let mut writer = arc.lock().await;
 
-                tx.send((
+                tx.send_single(
                     self.idx.unwrap(),
                     Notification::DownloadedAsset(asset.md5ext.clone()),
-                ))?;
+                )?;
                 asset_server
                     .download_asset(&mut writer, asset, context.clone())
                     .await

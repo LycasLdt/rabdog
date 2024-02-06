@@ -47,9 +47,7 @@ impl Download for ClipccDownload {
         DownloadDescriptor {
             display_name: "Clipcc",
             referer: "https://codingclip.com/",
-            asset_server: DownloadAssetServer::same(
-                "https://api.codingclip.com/v1/project/asset/",
-            ),
+            asset_server: DownloadAssetServer::same("https://api.codingclip.com/v1/project/asset/"),
         }
     }
 

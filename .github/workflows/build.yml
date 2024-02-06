@@ -37,6 +37,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Install OpenSSL
+        shell: bash
+        run: |
+          case ${{ matrix.os }} in
+            ubuntu-*) sudo apt-get install pkg-config libssl-dev ;;
+            macos-*) brew install openssl@3 ;;
+          esac
+
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
           bin: rabdog

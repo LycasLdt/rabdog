@@ -5,12 +5,12 @@ use crate::downloads::{
     ccw::CCWDownload, clipcc::ClipccDownload, fortycode::FortycodeDownload,
     scratch_cn::ScratchCNDownload, xmw::XMWDownload,
 };
-use crate::output::OutputSession;
+use crate::output::{output_channel, Notification};
 
 use clap::{value_parser, Parser};
-use futures::future::try_join_all;
+use futures::future::join_all;
 use once_cell::sync::Lazy;
-use tokio::{runtime::Runtime, sync::mpsc::unbounded_channel};
+use tokio::{runtime::Runtime, signal};
 
 mod downloads;
 mod output;
@@ -42,12 +42,16 @@ pub struct Config {
     /// 社区作品链接
     #[arg(required(true), value_parser = is_source_valid)]
     sources: Vec<String>,
+
     /// .sb3 文件存储路径
     #[arg(short, long, value_parser = value_parser!(PathBuf), default_value = ".")]
     path: PathBuf,
     /// 是否只下载 .sb3 文件中的 project.json
     #[arg(short, long)]
     no_assets: bool,
+    /// 是否不在终端输出下载进度
+    #[arg(short, long)]
+    silent: bool,
 }
 
 fn is_source_valid(source: &str) -> Result<String, String> {
@@ -60,8 +64,7 @@ fn is_source_valid(source: &str) -> Result<String, String> {
 }
 
 fn main() -> anyhow::Result<()> {
-    let (tx, rx) = unbounded_channel();
-    let mut session = OutputSession::empty(rx);
+    let (tx, mut rx) = output_channel();
 
     let config = Config::parse();
     setup_static(config.clone(), tx.clone());
@@ -74,10 +77,14 @@ fn main() -> anyhow::Result<()> {
     });
 
     let rt = Runtime::new()?;
-    let _ = rt.block_on(async {
+    let _ = rt.block_on(async move {
+        if !config.silent {
+            tokio::spawn(async move { rx.sync().await });
+        }
+
         tokio::select! {
-            _ = try_join_all(tasks) => drop(tx),
-            _ = session.sync() => ()
+            res = signal::ctrl_c() => if let Ok(_) = res { tx.send_global(Notification::Canceled).unwrap() },
+            _ = join_all(tasks) => drop(tx),
         }
     });
 

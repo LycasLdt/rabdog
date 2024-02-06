@@ -7,7 +7,7 @@ build = "build.rs"
 
 [dependencies]
 clap = { version = "4.4", features = ["derive"] }
-console = "0.15"
+owo-colors = "4"
 indicatif = "0.17"
 
 # Utils
@@ -29,7 +29,7 @@ zip = { version = "0.6", features = ["deflate"]}
 cbc = { version = "0.1", features = ["std"] }
 percent-encoding = "2.3"
 
-tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros"] }
+tokio = { version = "1", features = ["rt-multi-thread", "sync", "macros", "signal"] }
 reqwest = { version = "0.11", features = ["json"] }
 futures = "0.3"
 

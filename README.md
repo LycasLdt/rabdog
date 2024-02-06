@@ -15,34 +15,83 @@
 ### :rocket:支持
 * :white_check_mark: [**CCW**][ccw]
 
-  全部支持
 * :white_check_mark: [**Clipcc**][clipcc]
 
-  全部支持
 * :bomb: [**小码王**][xmw]
 
-  **部分**支持
+* :white_check_mark: [**Scratch 中社**][scratch-cn] <sup>v0.2.1</sup>
 
-  > [!CAUTION]
-  > 经测试 约 **50%** 作品 **无法使用**
-* :white_check_mark: [**Scratch 中社**][scratch-cn]
-  从`v0.1.2`开始支持
+* :bomb: [**40code**][40code] <sup>v0.2.1</sup>
+
+<dd>
+:white_check_mark: 全部支持
+
+:bomb: 支持但仍存在问题
+</dd>
+
+> [!CAUTION]
+> 经测试 
+> 
+> 有 小码王 作品采用该程序架构 **暂时无法解决** 的 **响应**
+>
+> 约 **75%** 的 小码王**旧作品 (包括最新更新但发布时间早的作品) 无法使用**
+> 
+> 于此同时
+> 
+> 有 40code 作品 **只支持 Firefox 的 `User-Agent` 访问**, 暂时仍未解决
+>
+> 约 **35%** 的 40code作品 **无法使用**
+
+### 安装
+
+在 [Releases][download] 中下载
+
+#### 手动下载
+
+`git clone`后运行:
+
+```
+cargo build --bin rabdog
+```
 
 ### :white_check_mark:使用
 
-`rabdog --help` **获取帮助**:
+#### 单链接下载
 
 ```bash
-rabdog [OPTIONS] <SOURCES>...
+$ rabdog "https://www.ccw.site/detail/65b9182433db685782f24f8f"
 
-参数:
-  <SOURCES>...  社区作品链接
+  [共创世界 [65b9182433db685782f24f8f]] 下载完成
 
-选项:
-  -p, --path <PATH>  .sb3 文件存储路径 [默认: .]
-  -n, --no-assets    是否只下载 .sb3 文件中的 project.json
-  -h, --help         获取帮助
-  -V, --version      获取 rabdog 版本号
+$
+```
+
+#### 多链接下载
+
+```bash
+$ rabdog "https://www.ccw.site/detail/65b9182433db685782f24f8f"
+> "https://codingclip.com/project/114"
+> "https://world.xiaomawang.com/community/main/compose/KmCD666J"
+
+  [共创世界 [65b9182433db685782f24f8f]] 下载完成
+  [Clipcc [114]] 下载完成
+  [小码王 [KmCD666J]] 下载完成
+
+$
+```
+
+#### 指定下载位置
+
+```bash
+$ rabdog --path /usr
+```
+
+#### 不在终端输出
+
+```bash
+$ rabdog --slient
+
+$ 
 ```
 
 ### :heart_on_fire:贡献
@@ -52,7 +101,7 @@ rabdog [OPTIONS] <SOURCES>...
 ### :key:许可证
 MIT
 
-[source]: /rabdog_app/src/main.rs
+[download]: https://github.com/LycasLdt/rabdog/releases
 
 [ccw]: https://www.ccw.site
 [clipcc]: https://codingclip.com

@@ -1,5 +1,6 @@
 use crate::utils::{
-    decode::{decode_base64, decode_cbc_aes, Base64Purpose}, sb3::Sb3Reader
+    decode::{decode_base64, decode_cbc_aes, Base64Purpose},
+    sb3::Sb3Reader,
 };
 
 use super::{Download, DownloadAssetServer, DownloadContext, DownloadDescriptor};
@@ -48,15 +49,17 @@ impl Download for CCWDownload {
         DownloadDescriptor {
             display_name: "共创世界",
             referer: "https://www.ccw.site/",
-            asset_server: DownloadAssetServer::same("https://m.ccw.site/user_projects_assets/")
+            asset_server: DownloadAssetServer::same("https://m.ccw.site/user_projects_assets/"),
         }
     }
 
     async fn get(&self, context: &mut DownloadContext) -> Result<()> {
-        let req = context.request(Method::POST, CCW_DETAIL_URL).json(&CCWDetailPayload {
-            oid: &context.id,
-            access_key: CCW_ACCESS_KEY,
-        });
+        let req = context
+            .request(Method::POST, CCW_DETAIL_URL)
+            .json(&CCWDetailPayload {
+                oid: &context.id,
+                access_key: CCW_ACCESS_KEY,
+            });
         let res = req.send().await?.json::<CCWDetailResponse>().await?.body;
 
         context.set_info(res.creation_release.project_link, res.title, Vec::new());
