@@ -1,0 +1,59 @@
+name: ci
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          # - target: aarch64-unknown-linux-gnu
+          #   os: ubuntu-latest
+          #   use-cross: true
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            use-cross: true
+          # - target: aarch64-apple-darwin
+          #   os: macos-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          # - target: universal-apple-darwin
+          #   os: macos-latest
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+    env:
+      BUILD_CMD: cargo
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+      - name: Cache rust
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install cross
+        if: matrix.use-cross
+        shell: bash
+        run: |
+          cargo install --force cross
+          echo "BUILD_CMD=cross" >> $GITHUB_ENV
+      - name: Build
+        shell: bash
+        run: $BUILD_CMD build --release --target=${{ matrix.target }}
+      - name: Select bin name
+        id: bin-name
+        shell: bash
+        run: |
+          BIN_NAME="rabdog"
+          case ${{ matrix.os }} in windows-*) BIN_NAME = "rabdog.exe" ;; esac
+          echo "BIN_NAME=${BIN_NAME}" >> $GITHUB_OUTPUT
+      
+      - name: Upload as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}_${{ steps.bin-name.outputs.BIN_NAME }}
+          path: /target/${{ matrix.target }}/release/${{ steps.bin-name.outputs.BIN_NAME }}
