@@ -49,11 +49,11 @@ jobs:
         shell: bash
         run: |
           BIN_NAME="rabdog"
-          case ${{ matrix.os }} in windows-*) BIN_NAME = "rabdog.exe" ;; esac
+          case ${{ matrix.os }} in windows-*) BIN_NAME="rabdog.exe" ;; esac
           echo "BIN_NAME=${BIN_NAME}" >> $GITHUB_OUTPUT
       
       - name: Upload as an artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}_${{ steps.bin-name.outputs.BIN_NAME }}
-          path: /target/${{ matrix.target }}/release/${{ steps.bin-name.outputs.BIN_NAME }}
+          path: ./target/${{ matrix.target }}/release/${{ steps.bin-name.outputs.BIN_NAME }}

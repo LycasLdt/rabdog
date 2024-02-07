@@ -44,14 +44,18 @@
 
 ### 安装
 
+[![ci](https://github.com/LycasLdt/rabdog/actions/workflows/ci.yml/badge.svg)](https://github.com/LycasLdt/rabdog/actions/workflows/ci.yml)
+
 在 [Releases][download] 中下载
 
 #### 手动下载
 
-`git clone`后运行:
+运行:
 
 ```
-cargo build --bin rabdog
+$ git clone https://github.com/LycasLdt/rabdog
+
+$ cargo build --bin rabdog
 ```
 
 ### :white_check_mark:使用
