@@ -5,6 +5,7 @@ use base64::{
     engine::{general_purpose::STANDARD, DecodePaddingMode, GeneralPurpose, GeneralPurposeConfig},
     Engine,
 };
+use md5::{Digest, Md5};
 
 const ENABLE_TRAILING: GeneralPurposeConfig = GeneralPurposeConfig::new()
     .with_decode_padding_mode(DecodePaddingMode::RequireNone)
@@ -48,9 +49,17 @@ pub fn decode_cbc_aes<K: AsRef<[u8]>, I: AsRef<[u8]>>(
 }
 
 #[inline]
-pub fn decode_hex(input: &str) -> Result<Vec<u8>> {
+pub fn decode_hex<I: AsRef<str>>(input: I) -> Result<Vec<u8>> {
+    let input = input.as_ref();
+
     (0..input.len())
         .step_by(2)
         .map(|i| u8::from_str_radix(&input[i..i + 2], 16).map_err(|e| e.into()))
         .collect()
+}
+
+#[inline]
+pub fn compute_md5<I: AsRef<[u8]>>(input: I) -> String {
+    let hash = Md5::new().chain_update(input).finalize();
+    base16ct::lower::encode_string(&hash)
 }

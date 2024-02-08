@@ -1,7 +1,7 @@
 [package]
 name = "rabdog"
 description = "A Scratch communities' project downloader"
-version = "0.2.1"
+version = "0.2.4"
 edition = "2021"
 build = "build.rs"
 
@@ -24,6 +24,9 @@ scraper = "0.18.1"
 
 # Decoding
 base64 = "0.21"
+md-5 = "0.11.0-pre.3"
+chrono = "0.4"
+base16ct = { version = "0.2", features = ["alloc"] }
 aes = "0.8"
 zip = { version = "0.6", features = ["deflate"]}
 cbc = { version = "0.1", features = ["std"] }

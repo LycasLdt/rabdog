@@ -1,8 +1,10 @@
 use anyhow::Result;
+use chrono::Utc;
 use serde::Deserialize;
 
 use crate::utils::{
-    decode::{decode_cbc_aes, decode_hex},
+    self,
+    decode::{compute_md5, decode_cbc_aes, decode_hex},
     get_next_data,
 };
 
@@ -13,6 +15,7 @@ const XMW_SB3_URL: &str =
     "https://community-api.xiaomawang.com/japi/v1/composition/get-encrypt-sb3";
 const XMW_AES_KEY: &str = "xmwcommunityskey";
 const XMW_AES_IV: &str = "0392139263920300";
+const XMW_PROJECT_KEY_PREFIX: &str = "xiaomw135";
 
 #[derive(Deserialize)]
 struct XMWData {
@@ -70,15 +73,33 @@ impl Download for XMWDownload {
             XMW_SB3_URL,
             &[("compositionEncryptId", context.id.clone())],
         )?;
-        context.set_info(project_url, json.compose_info.title, Vec::new());
+        context.set_info(project_url.clone(), json.compose_info.title, Vec::new());
 
+        let res = context.get(project_url).send().await?;
+        let data = res.json::<XMWProjectEncodedSb3>().await?.data;
+        let buffer = match utils::Url::parse(&data) {
+            Ok(url) => {
+                let timestamp = Utc::now().timestamp().to_string();
+                let key = compute_md5([XMW_PROJECT_KEY_PREFIX, &timestamp].concat());
+                let query = &[("key", key), ("time", timestamp)];
+
+                let res = context.get(url).query(query).send().await?;
+                res.bytes().await?
+            }
+            Err(_) => data.into(),
+        };
+
+        context.set_buffer(buffer);
         Ok(())
     }
     fn decode(&self, context: &mut DownloadContext) -> Result<()> {
-        let content = context.buffer();
+        let buf = context.buffer().to_vec();
+        let hex = String::from_utf8(buf)?;
+        if hex.starts_with('{') {
+            return Ok(());
+        }
 
-        let hex = serde_json::from_slice::<XMWProjectEncodedSb3>(&content)?.data;
-        let input = decode_hex(&hex)?;
+        let input = decode_hex(hex)?;
         let buf = decode_cbc_aes(&input, XMW_AES_KEY, XMW_AES_IV)?;
 
         context.set_buffer(buf.into());

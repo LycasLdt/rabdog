@@ -191,18 +191,22 @@ impl<'a> Handler<'a> {
 
         self.downloader.get(&mut self.context).await.and_then(|_| {
             let title = self.context.clone().title.unwrap();
-            Ok(tx.send_single(idx, Notification::FetchedProject(title))?)
+            tx.send_single(idx, Notification::FetchedProject(title))
         })?;
         self.get_buffer().await?;
         self.downloader
             .decode(&mut self.context)
-            .and_then(|_| Ok(tx.send_single(idx, Notification::DecodedProject)?))?;
+            .and_then(|_| tx.send_single(idx, Notification::DecodedProject))?;
         self.pack_sb3(config.path.clone()).await?;
         tx.send_single(idx, Notification::Finished)?;
 
         Ok(())
     }
     async fn get_buffer(&mut self) -> Result<()> {
+        if self.context.buffer.is_some() {
+            return Ok(());
+        }
+
         let url = self.context.url.clone().unwrap();
         let res = self.context.get(url).send().await?;
 

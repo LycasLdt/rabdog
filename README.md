@@ -17,7 +17,7 @@
 
 * :white_check_mark: [**Clipcc**][clipcc]
 
-* :bomb: [**小码王**][xmw]
+* :white_check_mark: [**小码王**][xmw]
 
 * :white_check_mark: [**Scratch 中社**][scratch-cn] <sup>v0.2.1</sup>
 
@@ -32,17 +32,11 @@
 > [!CAUTION]
 > 经测试 
 > 
-> 有 小码王 作品采用该程序架构 **暂时无法解决** 的 **响应**
->
-> 约 **75%** 的 小码王**旧作品 (包括最新更新但发布时间早的作品) 无法使用**
-> 
-> 于此同时
-> 
 > 有 40code 作品 **只支持 Firefox 的 `User-Agent` 访问**, 暂时仍未解决
 >
 > 约 **35%** 的 40code作品 **无法使用**
 
-### 安装
+### :package:安装
 
 [![ci](https://github.com/LycasLdt/rabdog/actions/workflows/ci.yml/badge.svg)](https://github.com/LycasLdt/rabdog/actions/workflows/ci.yml)
 

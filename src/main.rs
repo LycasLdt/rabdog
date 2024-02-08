@@ -71,19 +71,19 @@ fn main() -> anyhow::Result<()> {
 
     let manager = Lazy::force(&MANAGER);
     let sources = config.sources.as_slice();
-    let tasks = sources.into_iter().enumerate().filter_map(|(idx, source)| {
+    let tasks = sources.iter().enumerate().filter_map(|(idx, source)| {
         let mut download = manager.select(source)?;
         Some(async move { download.download(idx).await })
     });
 
     let rt = Runtime::new()?;
-    let _ = rt.block_on(async move {
+    rt.block_on(async move {
         if !config.silent {
             tokio::spawn(async move { rx.sync().await });
         }
 
         tokio::select! {
-            res = signal::ctrl_c() => if let Ok(_) = res { tx.send_global(Notification::Canceled).unwrap() },
+            res = signal::ctrl_c() => if res.is_ok() { tx.send_global(Notification::Canceled).unwrap() },
             _ = join_all(tasks) => drop(tx),
         }
     });
