@@ -5,7 +5,7 @@ use crate::downloads::{
     ccw::CCWDownload, clipcc::ClipccDownload, fortycode::FortycodeDownload,
     scratch_cn::ScratchCNDownload, xmw::XMWDownload,
 };
-use crate::output::{output_channel, Notification};
+use crate::output::output_channel;
 
 use clap::{value_parser, Parser};
 use futures::future::join_all;
@@ -83,7 +83,7 @@ fn main() -> anyhow::Result<()> {
         }
 
         tokio::select! {
-            res = signal::ctrl_c() => if res.is_ok() { tx.send_global(Notification::Canceled).unwrap() },
+            _ = signal::ctrl_c() => (),
             _ = join_all(tasks) => drop(tx),
         }
     });

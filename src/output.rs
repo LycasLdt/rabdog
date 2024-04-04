@@ -6,7 +6,7 @@ use std::fmt::Display;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 
 static SPINNER_STYLE: Lazy<ProgressStyle> = Lazy::new(|| {
-    ProgressStyle::with_template(r#"{spinner:.bold} [{prefix:.bold}] {wide_msg}"#).unwrap()
+    ProgressStyle::with_template(r#" {spinner:.bold} [{prefix:.bold}] {wide_msg}"#).unwrap()
 });
 
 pub type OutputMessage = (NotificationIndex, Notification);
@@ -47,9 +47,9 @@ enum ProgressStatus {
 impl ProgressStatus {
     fn color(&self) -> AnsiColors {
         match self {
-            ProgressStatus::Running => AnsiColors::BrightCyan,
-            ProgressStatus::Finished => AnsiColors::BrightGreen,
-            ProgressStatus::Error => AnsiColors::BrightRed,
+            ProgressStatus::Running => AnsiColors::Cyan,
+            ProgressStatus::Finished => AnsiColors::Green,
+            ProgressStatus::Error => AnsiColors::Red,
             ProgressStatus::Canceled => AnsiColors::Yellow,
         }
     }
@@ -94,47 +94,57 @@ impl NotifyProgress {
 
 pub struct OutputReceiver {
     inner: UnboundedReceiver<OutputMessage>,
+    multi: MultiProgress,
     bars: Vec<NotifyProgress>,
 }
 impl OutputReceiver {
     pub fn empty(inner: UnboundedReceiver<OutputMessage>) -> Self {
         Self {
             inner,
+            multi: MultiProgress::new(),
             bars: Vec::new(),
         }
     }
 
     pub async fn sync(&mut self) {
-        let mut multi = MultiProgress::new();
-
         while let Some((index, notification)) = self.inner.recv().await {
-            let range = match index {
-                NotificationIndex::All => 0..self.bars.len(),
-                NotificationIndex::Single(idx) => idx..idx + 1,
-            };
-            range.for_each(|idx| self.act(&mut multi, idx, &notification))
+            self.do_actions(index, notification)
         }
     }
+    pub fn do_actions(&mut self, index: NotificationIndex, notification: Notification) {
+        let range = match index {
+            NotificationIndex::All => 0..self.bars.len(),
+            NotificationIndex::Single(idx) => idx..idx + 1,
+        };
+        range.for_each(|idx| self.act(idx, &notification))
+    }
 
-    fn act(&mut self, multi: &mut MultiProgress, idx: usize, notification: &Notification) {
+    fn act(&mut self, idx: usize, notification: &Notification) {
         if let Notification::SelectedDownload { name, ref id } = notification {
-            let description = format!("{} [{}]", name, id);
+            let description = format!(" {} : {} ", name, id);
             let mut bar = NotifyProgress::new(description);
-            bar.remote(multi);
+            bar.remote(&mut self.multi);
 
             self.bars.push(bar);
         }
 
         let bar = &mut self.bars[idx];
-        let status = match notification {
-            Notification::Finished => ProgressStatus::Finished,
-            Notification::Error(_) => ProgressStatus::Error,
-            Notification::Canceled => ProgressStatus::Canceled,
-            _ => ProgressStatus::Running,
-        };
+        if let ProgressStatus::Running = bar.status {
+            let status = match notification {
+                Notification::Finished => ProgressStatus::Finished,
+                Notification::Error(_) => ProgressStatus::Error,
+                Notification::Canceled => ProgressStatus::Canceled,
+                _ => ProgressStatus::Running,
+            };
 
-        bar.set_status(status);
-        bar.update(notification)
+            bar.set_status(status);
+            bar.update(notification)
+        }
+    }
+}
+impl Drop for OutputReceiver {
+    fn drop(&mut self) {
+        self.do_actions(NotificationIndex::All, Notification::Canceled)
     }
 }
 
@@ -149,11 +159,6 @@ impl OutputSender {
     pub fn send_single(&self, idx: usize, notification: Notification) -> Result<()> {
         self.inner
             .send((NotificationIndex::Single(idx), notification))
-            .map_err(|err| err.into())
-    }
-    pub fn send_global(&self, notification: Notification) -> Result<()> {
-        self.inner
-            .send((NotificationIndex::All, notification))
             .map_err(|err| err.into())
     }
 }

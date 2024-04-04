@@ -5,7 +5,7 @@
 ## Rabdog 
 </div>
 
-快速获取 **Scratch社区作品**。
+简简单单，获取个 **Scratch社区作品**。
 
 > [!WARNING]
 > 仍处于**超前版本**，请谨慎使用
@@ -13,28 +13,19 @@
 > 凡使用此程序**违反社区规定**的，此程序**不承担任何责任**
 
 ### :rocket:支持
-* :white_check_mark: [**CCW**][ccw]
-
-* :white_check_mark: [**Clipcc**][clipcc]
-
-* :white_check_mark: [**小码王**][xmw]
-
-* :white_check_mark: [**Scratch 中社**][scratch-cn] <sup>v0.2.1</sup>
-
-* :bomb: [**40code**][40code] <sup>v0.2.1</sup>
+||:label: 支持状态|:rotating_light: 注意|
+|-|-|-|
+|**[CCW]**|:white_check_mark:||
+|**[Clipcc]**|:white_check_mark:||
+|**[小码王][xmw]**|:white_check_mark:||
+|**[Scratch 中社][scratch-cn]**|:white_check_mark:|从 `v0.2.1` 开始支持|
+|**[40code]**|:construction:|有 40code 作品 **只支持 Firefox 的 `User-Agent` 访问**, 暂时仍未解决|
 
 <dd>
 :white_check_mark: 全部支持
 
-:bomb: 支持但仍存在问题
+:construction: 支持但仍存在问题
 </dd>
-
-> [!CAUTION]
-> 经测试 
-> 
-> 有 40code 作品 **只支持 Firefox 的 `User-Agent` 访问**, 暂时仍未解决
->
-> 约 **35%** 的 40code作品 **无法使用**
 
 ### :package:安装
 
@@ -60,8 +51,6 @@ $ cargo build --bin rabdog
 $ rabdog "https://www.ccw.site/detail/65b9182433db685782f24f8f"
 
   [共创世界 [65b9182433db685782f24f8f]] 下载完成
-
-$
 ```
 
 #### 多链接下载
@@ -74,20 +63,18 @@ $ rabdog "https://www.ccw.site/detail/65b9182433db685782f24f8f"
   [共创世界 [65b9182433db685782f24f8f]] 下载完成
   [Clipcc [114]] 下载完成
   [小码王 [KmCD666J]] 下载完成
-
-$
 ```
 
 #### 指定下载位置
 
 ```bash
-$ rabdog --path /usr
+$ rabdog --path ~ "https://www.ccw.site/detail/65b9182433db685782f24f8f"
 ```
 
 #### 不在终端输出
 
 ```bash
-$ rabdog --slient
+$ rabdog --silent
 
 $ 
 ```

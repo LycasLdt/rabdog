@@ -29,6 +29,7 @@ pub static USER_AGENT: &str = concat!(
     " ",
     "Chrome/114.0.0.0 Safari/537.36"
 );
+pub const INVALID_PATH: &str = r#"\/:*?"<>|"#;
 
 #[derive(Default, Clone)]
 pub struct DownloadDescriptor {
@@ -218,8 +219,10 @@ impl<'a> Handler<'a> {
         let (config, _, _) = CONTEXT.get().unwrap();
 
         let context = &self.context;
+        let mut title = context.title.clone().unwrap();
+        title.retain(|c| !INVALID_PATH.contains(c));
 
-        path.push(context.title.clone().unwrap());
+        path.push(title);
         path.set_extension(if config.no_assets { "json" } else { "sb3" });
 
         let mut file = std::fs::File::create(path)?;
