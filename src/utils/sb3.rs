@@ -2,7 +2,7 @@ use std::io::{Cursor, Read, Seek, Write};
 
 use anyhow::{Ok, Result};
 use serde::Deserialize;
-use zip::{write::FileOptions, ZipArchive, ZipWriter};
+use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
 
 #[derive(Deserialize)]
 pub struct Sb3Project {
@@ -81,7 +81,7 @@ impl<W: Write + Seek> Sb3Writer<W> {
     }
     pub fn add_asset(&mut self, name: &str, buf: &[u8]) -> Result<&mut Self> {
         let inner = &mut self.0;
-        inner.start_file(name, FileOptions::default())?;
+        inner.start_file(name, SimpleFileOptions::default())?;
         inner.write_all(buf)?;
 
         Ok(self)

@@ -1,8 +1,6 @@
 <div align="center">
 
-# :dog:
-
-## Rabdog 
+## :dog: Rabdog 
 </div>
 
 简简单单，获取个 **Scratch社区作品**。
