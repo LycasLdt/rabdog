@@ -17,7 +17,6 @@ pub struct Sb3Target {
 pub struct Sb3Asset {
     #[serde(skip)]
     pub kind: Sb3AssetKind,
-    pub name: String,
     pub md5ext: String,
 }
 
@@ -68,11 +67,14 @@ impl Sb3Reader {
     }
 }
 
-pub struct Sb3Writer<W: Write + Seek>(pub ZipWriter<W>);
+pub struct Sb3Writer<W: Write + Seek> {
+    inner: ZipWriter<W>,
+    assets: Vec<String>
+}
 impl<W: Write + Seek> Sb3Writer<W> {
     pub fn new(writer: W) -> Self {
         let inner = ZipWriter::new(writer);
-        Sb3Writer(inner)
+        Sb3Writer { inner, assets: Vec::new() }
     }
 
     pub fn set_project_json<C: AsRef<[u8]>>(&mut self, json: C) -> Result<&mut Self> {
@@ -80,13 +82,17 @@ impl<W: Write + Seek> Sb3Writer<W> {
         Ok(self)
     }
     pub fn add_asset(&mut self, name: &str, buf: &[u8]) -> Result<&mut Self> {
-        let inner = &mut self.0;
-        inner.start_file(name, SimpleFileOptions::default())?;
-        inner.write_all(buf)?;
+        let inner = &mut self.inner;
+        if !self.assets.contains(&name.to_owned()) {
+            inner.start_file(name, SimpleFileOptions::default())?;
+            inner.write_all(buf)?;
+
+            self.assets.push(name.to_owned())
+        }
 
         Ok(self)
     }
     pub fn finish(&mut self) -> Result<W> {
-        Ok(self.0.finish()?)
+        Ok(self.inner.finish()?)
     }
 }

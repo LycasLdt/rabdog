@@ -25,6 +25,8 @@ scraper = "0.19"
 # Decoding
 base64 = "0.22"
 md-5 = "0.11.0-pre.3"
+rsa = "0.10.0-pre.1"
+rand = "0.8"
 chrono = "0.4"
 base16ct = { version = "0.2", features = ["alloc"] }
 aes = "0.8"
