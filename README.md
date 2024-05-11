@@ -14,22 +14,27 @@
 ||:label: 支持状态|:rotating_light: 注意|
 |-|-|-|
 |**[CCW]**|:white_check_mark:||
-|**[Clipcc]**|:white_check_mark:||
+|**[Clipcc]**|:warning:|Rabdog 中 **使用的库 `rsa v0.10.0-pre.1` 会受 [The Marvin Attack](https://people.redhat.com/~hkario/marvin/) 影响** |
 |**[小码王][xmw]**|:white_check_mark:||
 |**[Scratch 中社][scratch-cn]**|:white_check_mark:|从 `v0.2.1` 开始支持|
-|**[40code]**|:construction:|有 40code 作品 **只支持 Firefox 的 `User-Agent` 访问**, 暂时仍未解决|
+|**[40code]**|:no_entry:|**不可使用，仍未修复**|
 
 <dd>
 :white_check_mark: 全部支持
 
 :construction: 支持但仍存在问题
+
+:warning: :rotating_light: 有安全问题 :rotating_light:，**不建议使用**
+
+:no_entry: 不再支持
 </dd>
 
 ### :package:安装
 
 [![ci](https://github.com/LycasLdt/rabdog/actions/workflows/ci.yml/badge.svg)](https://github.com/LycasLdt/rabdog/actions/workflows/ci.yml)
 
-在 [Releases][download] 中下载
+- 在 [Releases][download] 中下载 **发布版本** 
+- 在 [Actions][actions] 中 CI 上传的 `Artifacts` 下载 **测试版本**
 
 #### 手动下载
 
@@ -85,6 +90,7 @@ $
 MIT
 
 [download]: https://github.com/LycasLdt/rabdog/releases
+[actions]: https://github.com/LycasLdt/rabdog/actions
 
 [ccw]: https://www.ccw.site
 [clipcc]: https://codingclip.com
