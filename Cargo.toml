@@ -30,7 +30,7 @@ rand = "0.8"
 chrono = "0.4"
 base16ct = { version = "0.2", features = ["alloc"] }
 aes = "0.8"
-zip = { version = "1.1", features = ["deflate"]}
+zip = { version = "2.1", features = ["deflate"]}
 cbc = { version = "0.1", features = ["std"] }
 percent-encoding = "2.3"
 

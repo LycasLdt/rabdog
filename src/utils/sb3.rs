@@ -69,12 +69,15 @@ impl Sb3Reader {
 
 pub struct Sb3Writer<W: Write + Seek> {
     inner: ZipWriter<W>,
-    assets: Vec<String>
+    assets: Vec<String>,
 }
 impl<W: Write + Seek> Sb3Writer<W> {
     pub fn new(writer: W) -> Self {
         let inner = ZipWriter::new(writer);
-        Sb3Writer { inner, assets: Vec::new() }
+        Sb3Writer {
+            inner,
+            assets: Vec::new(),
+        }
     }
 
     pub fn set_project_json<C: AsRef<[u8]>>(&mut self, json: C) -> Result<&mut Self> {
@@ -92,7 +95,7 @@ impl<W: Write + Seek> Sb3Writer<W> {
 
         Ok(self)
     }
-    pub fn finish(&mut self) -> Result<W> {
+    pub fn finish(self) -> Result<W> {
         Ok(self.inner.finish()?)
     }
 }

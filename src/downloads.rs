@@ -253,7 +253,6 @@ impl<'a> Handler<'a> {
             });
 
         try_join_all(costumes).await?;
-        writer.lock().await.finish()?;
 
         Ok(())
     }
