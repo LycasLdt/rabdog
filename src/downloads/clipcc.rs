@@ -3,6 +3,7 @@ use crate::utils::{decode::decode_cbc_aes, get_next_data};
 use anyhow::Result;
 use base64::{engine::general_purpose::STANDARD, Engine};
 use chrono::Utc;
+use rabdog_schema::schema;
 use rsa::{pkcs8::DecodePublicKey, Pkcs1v15Encrypt, RsaPublicKey};
 
 const CLIPCC_SB3_URL: &str = "https://api.codingclip.com/v1/project/download";
@@ -18,8 +19,7 @@ const CLIPCC_AES_IV: [u8; 16] = [
 ];
 // ·-M8q -> {"ta
 const CLIPCC_SOURCE_PREFIX: [u8; 5] = [221, 45, 77, 56, 113];
-const CLIPCC_PUBLIC_KEY: &str = 
-r#"-----BEGIN PUBLIC KEY-----
+const CLIPCC_PUBLIC_KEY: &str = r#"-----BEGIN PUBLIC KEY-----
 MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzOaIJxii0ItmbVx1/lWTJxGht
 M/sPHGRyX/n4u7XFy89C+BPweyhowXMVvoN8aJivSrUC8wwn3/fDbq3PLF8Wm+37
 fmZw7JJssyEsow4x/TE6N9b0Hq8mYwLXHSAWWBHL0uzQeRtxfa9ZQsvpkGW/VoBJ
@@ -27,26 +27,10 @@ CP/tf54FNKZWpN+VZwIDAQAB
 -----END PUBLIC KEY-----
 "#;
 
-#[derive(serde::Deserialize)]
-struct ClipccData {
-    props: ClipccDataProps,
-}
-
-#[derive(serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct ClipccDataProps {
-    page_props: ClipccDataPageProps,
-}
-
-#[derive(serde::Deserialize)]
-struct ClipccDataPageProps {
-    project: ClipccProject,
-}
-
-#[derive(serde::Deserialize)]
-struct ClipccProject {
-    name: String,
-    user_name: String,
+schema! {
+    ClipccData;
+    props.page_props.project.name: String,
+    props.page_props.project.user_name: String
 }
 
 #[derive(Default)]
@@ -73,12 +57,11 @@ impl Download for ClipccDownload {
         let asset_id = ["public", &timestamp, &context.id].join("|");
 
         let mut rng = rand::thread_rng();
-        let public_key = RsaPublicKey::from_public_key_pem(&CLIPCC_PUBLIC_KEY)?;
+        let public_key = RsaPublicKey::from_public_key_pem(CLIPCC_PUBLIC_KEY)?;
         let keys = public_key.encrypt(&mut rng, Pkcs1v15Encrypt, asset_id.as_bytes())?;
         let keys = STANDARD.encode(keys);
 
-        let project_url =
-            crate::utils::Url::parse_with_params(CLIPCC_SB3_URL, &[("keys", keys)])?;
+        let project_url = crate::utils::Url::parse_with_params(CLIPCC_SB3_URL, &[("keys", keys)])?;
 
         context.set_info(project_url, json.project.name, vec![json.project.user_name]);
         Ok(())

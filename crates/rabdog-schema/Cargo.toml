@@ -1,0 +1,16 @@
+[package]
+name = "rabdog-schema"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "2", features = ["parsing"] }
+quote = "1"
+heck = "0.5.0"
+proc-macro2 = "1"
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

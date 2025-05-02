@@ -17,6 +17,7 @@
 |**[Clipcc]**|:warning:|Rabdog 中 **使用的库 `rsa v0.10.0-pre.1` 会受 [The Marvin Attack](https://people.redhat.com/~hkario/marvin/) 影响** |
 |**[小码王][xmw]**|:white_check_mark:||
 |**[Scratch 中社][scratch-cn]**|:white_check_mark:|从 `v0.2.1` 开始支持|
+|**[稽木世界 / 阿尔法营][gitblock]**|:warning:|从 `v0.3.0` 开始支持，**限流作品无法下载**|
 |**[40code]**|:no_entry:|**不可使用，仍未修复**|
 
 <dd>
@@ -98,3 +99,4 @@ MIT
 [xmw]: https://world.xiaomawang.com/
 [scratch-cn]: https://www.scratch-cn.cn/
 [40code]: https://www.40code.com/
+[gitblock]: https://gitblock.cn

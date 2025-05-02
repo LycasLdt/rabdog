@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use crate::downloads::setup_static;
 use crate::downloads::{
     ccw::CCWDownload, clipcc::ClipccDownload, fortycode::FortycodeDownload,
-    scratch_cn::ScratchCNDownload, xmw::XMWDownload,
+    gitblock::GitblockDownload, scratch_cn::ScratchCNDownload, xmw::XMWDownload,
 };
 use crate::output::output_channel;
 
@@ -33,7 +33,8 @@ downloads!(MANAGER;
     ClipccDownload => r"^((https|http):\/\/)?codingclip\.com\/project\/(?<id>[0-9]+)(\?.*)?",
     XMWDownload => r"^((https|http):\/\/)?world.xiaomawang.com\/community\/main\/compose\/(?<id>[a-zA-Z0-9]{8})(\?.*)?",
     ScratchCNDownload => r"^((https|http):\/\/)?(www\.)?scratch-cn.cn\/project\/\?comid=(?<id>[a-zA-Z0-9]{24})(\?.*)?",
-    FortycodeDownload => r"^((https|http):\/\/)?(www\.)?40code.com\/#page=work&id=(?<id>[0-9]+)(\?.*)?"
+    FortycodeDownload => r"^((https|http):\/\/)?(www\.)?40code.com\/#page=work&id=(?<id>[0-9]+)(\?.*)?",
+    GitblockDownload => r"^((https|http):\/\/)?(gitblock.cn|aerfaying.com)\/Projects/(?<id>[0-9]+)(\?.*)?"
 );
 
 #[derive(Parser, Clone)]
@@ -84,7 +85,7 @@ fn main() -> anyhow::Result<()> {
 
         tokio::select! {
             _ = signal::ctrl_c() => (),
-            _ = join_all(tasks) => drop(tx),
+            _ = join_all(tasks) => (),
         }
     });
 

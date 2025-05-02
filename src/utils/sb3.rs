@@ -4,9 +4,24 @@ use anyhow::{Ok, Result};
 use serde::Deserialize;
 use zip::{write::SimpleFileOptions, ZipArchive, ZipWriter};
 
+const BUILDIN_EXTENSIONS: [&str; 11] = [
+    "pen",
+    "wedo2",
+    "music",
+    "microbit",
+    "text2speech",
+    "translate",
+    "videoSensing",
+    "ev3",
+    "makeymakey",
+    "boost",
+    "gdxfor",
+];
+
 #[derive(Deserialize)]
 pub struct Sb3Project {
     pub targets: Vec<Sb3Target>,
+    pub extensions: Vec<String>,
 }
 #[derive(Deserialize)]
 pub struct Sb3Target {
@@ -65,6 +80,18 @@ impl Sb3Reader {
 
         Ok(assets.collect())
     }
+    pub fn community_extensions(&self) -> Result<Option<Vec<String>>> {
+        let extensions = self.to_project()?.extensions;
+        let community_extensions: Vec<String> = extensions
+            .into_iter()
+            .filter(|extension| !BUILDIN_EXTENSIONS.contains(&extension.as_str()))
+            .collect();
+
+        match community_extensions.len() {
+            0 => Ok(None),
+            _ => Ok(Some(community_extensions)),
+        }
+    }
 }
 
 pub struct Sb3Writer<W: Write + Seek> {
@@ -94,8 +121,5 @@ impl<W: Write + Seek> Sb3Writer<W> {
         }
 
         Ok(self)
-    }
-    pub fn finish(self) -> Result<W> {
-        Ok(self.inner.finish()?)
     }
 }

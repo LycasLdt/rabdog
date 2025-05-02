@@ -20,6 +20,7 @@ pub enum Notification {
     FetchedProject(String),
     DecodedProject,
     DownloadedAsset(String),
+    WarnCommunityExtensions(Vec<String>),
     Finished,
     Canceled,
     Error(Error),
@@ -34,6 +35,9 @@ impl Display for Notification {
             Notification::Finished => write!(f, "下载完成"),
             Notification::Canceled => write!(f, "下载作品任务已取消"),
             Notification::Error(err) => write!(f, "遇到错误: {}", err),
+            Notification::WarnCommunityExtensions(items) => {
+                write!(f, "⚠️ 下载项目中有不兼容的社区插件: {}", items.join(", "))
+            }
         }
     }
 }
@@ -73,6 +77,9 @@ impl NotifyProgress {
     }
     fn set_status(&mut self, status: ProgressStatus) {
         self.status = status
+    }
+    fn println<M: AsRef<str>>(&self, msg: M) {
+        self.inner.println(msg);
     }
 
     fn remote(&mut self, multi: &mut MultiProgress) {
@@ -138,7 +145,13 @@ impl OutputReceiver {
             };
 
             bar.set_status(status);
-            bar.update(notification)
+
+            match notification {
+                Notification::WarnCommunityExtensions(_) => {
+                    bar.println(notification.yellow().to_string())
+                }
+                _ => bar.update(notification),
+            }
         }
     }
 }

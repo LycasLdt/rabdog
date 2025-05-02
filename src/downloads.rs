@@ -1,6 +1,7 @@
 pub mod ccw;
 pub mod clipcc;
 pub mod fortycode;
+pub mod gitblock;
 pub mod scratch_cn;
 pub mod xmw;
 
@@ -27,7 +28,7 @@ pub static USER_AGENT: &str = concat!(
     " ",
     "AppleWebKit/537.36 (KHTML, like Gecko)",
     " ",
-    "Chrome/114.0.0.0 Safari/537.36"
+    "Chrome/131.0.0.0 Safari/537.36"
 );
 pub const INVALID_PATH: &str = r#"\/:*?"<>|"#;
 
@@ -135,7 +136,7 @@ impl DownloadManager {
             .push((Regex::new(matcher).unwrap(), Lazy::new(init)));
     }
 
-    pub fn select<'a>(&'a self, source: &'a str) -> Option<Handler> {
+    pub fn select<'a>(&'a self, source: &'a str) -> Option<Handler<'a>> {
         self.downloaders
             .iter()
             .find(|(r, _)| r.is_match(source))
@@ -235,24 +236,30 @@ impl<'a> Handler<'a> {
         let writer = Arc::new(Mutex::new(Sb3Writer::new(file)));
         writer.lock().await.set_project_json(context.buffer())?;
 
-        let costumes = Sb3Reader::parse(context.buffer())
-            .assets()?
-            .into_iter()
-            .map(|asset| async {
-                let (_, _, tx) = CONTEXT.get().unwrap();
-                let arc = Arc::clone(&writer);
-                let mut writer = arc.lock().await;
+        let reader = Sb3Reader::parse(context.buffer());
+        let assets = reader.assets()?.into_iter().map(|asset| async {
+            let (_, _, tx) = CONTEXT.get().unwrap();
+            let arc = Arc::clone(&writer);
+            let mut writer = arc.lock().await;
 
-                tx.send_single(
-                    self.idx.unwrap(),
-                    Notification::DownloadedAsset(asset.md5ext.clone()),
-                )?;
-                asset_server
-                    .download_asset(&mut writer, asset, context.clone())
-                    .await
-            });
+            tx.send_single(
+                self.idx.unwrap(),
+                Notification::DownloadedAsset(asset.md5ext.clone()),
+            )?;
+            asset_server
+                .download_asset(&mut writer, asset, context.clone())
+                .await
+        });
 
-        try_join_all(costumes).await?;
+        if let Some(extensions) = reader.community_extensions()? {
+            let (_, _, tx) = CONTEXT.get().unwrap();
+            tx.send_single(
+                self.idx.unwrap(),
+                Notification::WarnCommunityExtensions(extensions),
+            )?;
+        }
+
+        try_join_all(assets).await?;
 
         Ok(())
     }

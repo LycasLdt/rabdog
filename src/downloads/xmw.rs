@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::Utc;
-use serde::Deserialize;
+use rabdog_schema::schema;
 
 use crate::utils::{
     self,
@@ -17,31 +17,14 @@ const XMW_AES_KEY: &str = "xmwcommunityskey";
 const XMW_AES_IV: &str = "0392139263920300";
 const XMW_PROJECT_KEY_PREFIX: &str = "xiaomw135";
 
-#[derive(Deserialize)]
-struct XMWData {
-    props: XMWPropsData,
+schema! {
+    XMWProjectEncodedSb3;
+    data: String
 }
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct XMWPropsData {
-    initial_state: XMWInitialState,
-}
-#[derive(Deserialize)]
-struct XMWInitialState {
-    detail: XMWDetail,
-}
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct XMWDetail {
-    compose_info: XMWProject,
-}
-#[derive(Deserialize)]
-struct XMWProject {
-    title: String,
-}
-#[derive(Deserialize)]
-struct XMWProjectEncodedSb3 {
-    data: String,
+
+schema! {
+    XMWData;
+    props.initial_state.detail.compose_info.title: String
 }
 
 #[derive(Default)]

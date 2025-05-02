@@ -6,6 +6,7 @@ use crate::utils::{
 use super::{Download, DownloadAssetServer, DownloadContext, DownloadDescriptor};
 use anyhow::{anyhow, Result};
 use bytes::{BufMut, BytesMut};
+use rabdog_schema::schema;
 use reqwest::Method;
 
 const CCW_DETAIL_URL: &str = "https://community-web.ccw.site/creation/detail";
@@ -14,30 +15,17 @@ const BASE64_PREFIX: &str = "KzdnFCBRvq3";
 const V2_PREFIX: [u8; 8] = [55, 122, 188, 175, 9, 5, 2, 7];
 const ZIP_ARCHIEVE_PREFIX: [u8; 8] = [80, 75, 3, 4, 10, 0, 0, 0];
 
+schema! {
+    CCWDetailResponse;
+    body.title: String,
+    body.creation_release.project_link: String
+}
+
 #[derive(serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 struct CCWDetailPayload<'a> {
     oid: &'a str,
     access_key: &'static str,
-}
-
-#[derive(serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct CCWDetailResponse {
-    body: CCWDetailBody,
-}
-
-#[derive(serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct CCWDetailBody {
-    title: String,
-    creation_release: CCWRelease,
-}
-
-#[derive(serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct CCWRelease {
-    project_link: String,
 }
 
 #[derive(Default)]
@@ -137,7 +125,7 @@ fn decode_v3(context: DownloadContext) -> Result<Vec<u8>> {
     let url = context.url.clone().unwrap();
     let asset_id = url
         .split('/')
-        .last()
+        .next_back()
         .and_then(|f| f.split('.').next())
         .ok_or(anyhow!("incorrect project url"))?;
 
