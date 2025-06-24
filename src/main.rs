@@ -2,8 +2,9 @@ use std::path::PathBuf;
 
 use crate::downloads::setup_static;
 use crate::downloads::{
-    ccw::CCWDownload, clipcc::ClipccDownload, fortycode::FortycodeDownload,
-    gitblock::GitblockDownload, scratch_cn::ScratchCNDownload, xmw::XMWDownload,
+    ccw::CCWDownload, clipcc::ClipccDownload, cocrea::CocreaDownload, fortycode::FortycodeDownload,
+    gitblock::GitblockDownload, scratch::ScratchDownload, scratch_cn::ScratchCNDownload,
+    xmw::XMWDownload,
 };
 use crate::output::output_channel;
 
@@ -31,10 +32,12 @@ macro_rules! downloads {
 downloads!(MANAGER;
     CCWDownload => r"^((https|http):\/\/)?(www\.)?ccw\.site\/detail\/(?<id>[a-z0-9]{24})(\?.*)?",
     ClipccDownload => r"^((https|http):\/\/)?codingclip\.com\/project\/(?<id>[0-9]+)(\?.*)?",
+    CocreaDownload => r"((https|http):\/\/)?(www\.)?cocrea\.world\/(?<id>\@(\w+)\/(\w+))(\?.*)?",
     XMWDownload => r"^((https|http):\/\/)?world.xiaomawang.com\/community\/main\/compose\/(?<id>[a-zA-Z0-9]{8})(\?.*)?",
     ScratchCNDownload => r"^((https|http):\/\/)?(www\.)?scratch-cn.cn\/project\/\?comid=(?<id>[a-zA-Z0-9]{24})(\?.*)?",
     FortycodeDownload => r"^((https|http):\/\/)?(www\.)?40code.com\/#page=work&id=(?<id>[0-9]+)(\?.*)?",
-    GitblockDownload => r"^((https|http):\/\/)?(gitblock.cn|aerfaying.com)\/Projects/(?<id>[0-9]+)(\?.*)?"
+    GitblockDownload => r"^((https|http):\/\/)?(gitblock.cn|aerfaying.com)\/Projects/(?<id>[0-9]+)(\?.*)?",
+    ScratchDownload => r"^((https|http):\/\/)?scratch.mit.edu\/projects\/(?<id>[0-9]+)(\?.*)?"
 );
 
 #[derive(Parser, Clone)]

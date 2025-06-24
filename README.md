@@ -13,11 +13,13 @@
 ### :rocket:支持
 ||:label: 支持状态|:rotating_light: 注意|
 |-|-|-|
+|**[Scratch]**|:warning:|使用 [**TurboWarp Trampoline**](https://trampoline.turbowarp.org) 和 [**Chilipar**](https://chilipar.alibga.icu) (**自建**，部署于 `Vercel`) 代理，**稳定性不能保证**|
 |**[CCW]**|:white_check_mark:||
+|**[Cocrea World][cocrea-world]**|:white_check_mark:||
 |**[Clipcc]**|:warning:|Rabdog 中 **使用的库 `rsa v0.10.0-pre.1` 会受 [The Marvin Attack](https://people.redhat.com/~hkario/marvin/) 影响** |
 |**[小码王][xmw]**|:white_check_mark:||
 |**[Scratch 中社][scratch-cn]**|:white_check_mark:|从 `v0.2.1` 开始支持|
-|**[稽木世界 / 阿尔法营][gitblock]**|:warning:|从 `v0.3.0` 开始支持，**限流作品无法下载**|
+|**[稽木世界 / 阿尔法营][gitblock]**|:construction:|从 `v0.3.0` 开始支持，**限流作品无法下载**|
 |**[40code]**|:no_entry:|**不可使用，仍未修复**|
 
 <dd>
@@ -93,7 +95,9 @@ MIT
 [download]: https://github.com/LycasLdt/rabdog/releases
 [actions]: https://github.com/LycasLdt/rabdog/actions
 
+[scratch]: https://scratch.mit.edu/
 [ccw]: https://www.ccw.site
+[cocrea-world]: https://www.cocrea.world
 [clipcc]: https://codingclip.com
 [40code]: https://40code.com
 [xmw]: https://world.xiaomawang.com/

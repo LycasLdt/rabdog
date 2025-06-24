@@ -1,8 +1,10 @@
 pub mod ccw;
 pub mod clipcc;
+pub mod cocrea;
 pub mod fortycode;
 pub mod gitblock;
 pub mod scratch_cn;
+pub mod scratch;
 pub mod xmw;
 
 use std::{io::Write, path::PathBuf, sync::Arc};
